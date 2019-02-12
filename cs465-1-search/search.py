@@ -120,8 +120,9 @@ def generalSearchAlgorithm(problem, container, heuristic=None):
                             node_actions + [next_action],
                             node_cost + next_cost,
                         ),
-                        node_cost + next_cost,
+                        node_cost + next_cost + heuristic(next_node, problem),
                     )
+
                 else:
                     container.push((next_node, node_actions + [next_action]))
 
