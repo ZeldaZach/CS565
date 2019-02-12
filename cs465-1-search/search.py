@@ -75,80 +75,83 @@ def tinyMazeSearch(problem):
     return [s, s, w, s, w, w, s, w]
 
 
+def generalSearchAlgorithm(problem, container, heuristic=None):
+    """
+    A generalized search algorithm with a storage container for
+    better selection of nodes.
+    :param problem: Problem grid with nodes
+    :param container: How to prioritize what nodes to search next
+    :param heuristic: Heuristics, if applicable
+    :return list of actions to take
+    """
+    # What nodes have we already been to
+    nodes_visited = []
+
+    # Container of nodes to still traverse
+    # Add starting node to the container
+    if heuristic:
+        container.push((problem.getStartState(), [], 0), 0)
+    else:
+        container.push((problem.getStartState(), []))
+
+    while not container.isEmpty():
+        # Get the next element's components, based on the container type
+        if heuristic:
+            node, node_actions, node_cost = container.pop()
+        else:
+            node, node_actions = container.pop()
+            node_cost = -1
+
+        # If we've visited it already, skip it
+        if node not in nodes_visited:
+            # Record we've been here already
+            nodes_visited.append(node)
+
+            # See if we're done
+            if problem.isGoalState(node):
+                return node_actions
+
+            # Since we're not done, add the new selections to the container
+            for next_node, next_action, next_cost in problem.getSuccessors(node):
+                if heuristic:
+                    container.push(
+                        (
+                            next_node,
+                            node_actions + [next_action],
+                            node_cost + next_cost,
+                        ),
+                        node_cost + next_cost,
+                    )
+                else:
+                    container.push((next_node, node_actions + [next_action]))
+
+
 def depthFirstSearch(problem):
     """
-        Search the deepest nodes in the search tree first.
-
-        Your search algorithm needs to return a list of actions that reaches the
-        goal. Make sure to implement a graph search algorithm.
-
-        To get started, you might want to try some of these simple commands to
-        understand the search problem that is being passed in:
-
-        print "Start:", problem.getStartState()
-        print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-        print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    Search the deepest nodes in the search tree first.
+    Your search algorithm needs to return a list of actions that reaches the
+    goal. Make sure to implement a graph search algorithm.
+    To get started, you might want to try some of these simple commands to
+    understand the search problem that is being passed in:
+    print "Start:", problem.getStartState()
+    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+    print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
-    # Where have we visited already?
-    # Useful for graph traversal
-    states_visited = []
-
-    # DFS uses a stack, so push the head to the stack
-    state_stack = util.Stack()
-    state_stack.push((problem.getStartState(), []))
-
-    # We will iterate through all potential states
-    while not state_stack.isEmpty():
-        new_state, actions_to_take = state_stack.pop()
-
-        # Skip if we've been here already
-        if new_state in states_visited:
-            continue
-        else:
-            states_visited.append(new_state)
-
-        for xy, direction, _ in problem.getSuccessors(new_state):
-            if problem.isGoalState(xy):
-                return actions_to_take + [direction]
-            else:
-                # If not a goal state, add to iteration stack
-                state_stack.push((xy, actions_to_take + [direction]))
-    return []
+    return generalSearchAlgorithm(problem, util.Stack())
 
 
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    # Where have we visited already?
-    # Useful for graph traversal
-    states_visited = []
-
-    # BFS uses a queue, so push the head to the queue
-    state_queue = util.Queue()
-    state_queue.push((problem.getStartState(), []))
-
-    # We will iterate through all potential states
-    while not state_queue.isEmpty():
-        new_state, actions_to_take = state_queue.pop()
-
-        # Skip if we've been here already
-        if new_state in states_visited:
-            continue
-        else:
-            states_visited.append(new_state)
-
-        for xy, direction, _ in problem.getSuccessors(new_state):
-            if problem.isGoalState(xy):
-                return actions_to_take + [direction]
-            else:
-                # If not a goal state, add to iteration queue
-                state_queue.push((xy, actions_to_take + [direction]))
-    return []
+    """
+    Search via BFS method (Similar to DFS but uses a Queue instead)
+    """
+    return generalSearchAlgorithm(problem, util.Queue())
 
 
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """
+    Search the node of least total cost first.
+    """
+    return generalSearchAlgorithm(problem, util.PriorityQueue(), nullHeuristic)
 
 
 def nullHeuristic(state, problem=None):
@@ -161,8 +164,7 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return generalSearchAlgorithm(problem, util.PriorityQueue(), heuristic)
 
 
 # Abbreviations
