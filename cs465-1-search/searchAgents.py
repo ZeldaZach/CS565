@@ -595,38 +595,40 @@ class ClosestDotSearchAgent(SearchAgent):
     Search for all food using a sequence of searches
     """
 
-    def registerInitialState(self, state):
+    def __init__(self):
+        SearchAgent.__init__(
+            self,
+            fn="depthFirstSearch",
+            prob="PositionSearchProblem",
+            heuristic="nullHeuristic",
+        )
+        self.actionIndex = 0
         self.actions = []
-        currentState = state
-        while currentState.getFood().count() > 0:
-            nextPathSegment = self.findPathToClosestDot(
-                currentState
+
+    def registerInitialState(self, state):
+        current_state = state
+        while current_state.getFood().count() > 0:
+            next_path_segment = self.findPathToClosestDot(
+                current_state
             )  # The missing piece
-            self.actions += nextPathSegment
-            for action in nextPathSegment:
-                legal = currentState.getLegalActions()
+            self.actions += next_path_segment
+            for action in next_path_segment:
+                legal = current_state.getLegalActions()
                 if action not in legal:
-                    t = (str(action), str(currentState))
+                    t = (str(action), str(current_state))
                     raise Exception(
                         "findPathToClosestDot returned an illegal move: %s!\n%s" % t
                     )
-                currentState = currentState.generateSuccessor(0, action)
-        self.actionIndex = 0
+                current_state = current_state.generateSuccessor(0, action)
         print("Path found with cost %d." % len(self.actions))
 
-    def findPathToClosestDot(self, gameState):
+    def findPathToClosestDot(self, game_state):
         """
         Returns a path (a list of actions) to the closest dot, starting from
         gameState.
         """
-        # Here are some useful elements of the startState
-        startPosition = gameState.getPacmanPosition()
-        food = gameState.getFood()
-        walls = gameState.getWalls()
-        problem = AnyFoodSearchProblem(gameState)
-
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        problem = AnyFoodSearchProblem(game_state)
+        return search.breadthFirstSearch(problem)
 
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -662,9 +664,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         complete the problem definition.
         """
         x, y = state
-
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
 
 
 def mazeDistance(point1, point2, gameState):
