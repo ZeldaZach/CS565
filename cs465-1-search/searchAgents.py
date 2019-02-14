@@ -43,10 +43,14 @@ import search
 
 
 class GoWestAgent(Agent):
-    "An agent that goes West until it can't."
+    """
+    An agent that goes West until it can't.
+    """
 
     def getAction(self, state):
-        "The agent receives a GameState (defined in pacman.py)."
+        """
+        The agent receives a GameState (defined in pacman.py).
+        """
         if Directions.WEST in state.getLegalPacmanActions():
             return Directions.WEST
         else:
@@ -85,6 +89,7 @@ class SearchAgent(Agent):
         # Warning: some advanced Python magic is employed below to find the right functions and problems
 
         # Get the search function from the name and heuristic
+        Agent.__init__(self)
         if fn not in dir(search):
             raise AttributeError(fn + " is not a search function in search.py.")
         func = getattr(search, fn)
@@ -274,6 +279,7 @@ class StayEastSearchAgent(SearchAgent):
     """
 
     def __init__(self):
+        SearchAgent.__init__(self)
         self.searchFunction = search.uniformCostSearch
         costFn = lambda pos: 0.5 ** pos[0]
         self.searchType = lambda state: PositionSearchProblem(
@@ -290,20 +296,25 @@ class StayWestSearchAgent(SearchAgent):
     """
 
     def __init__(self):
+        SearchAgent.__init__(self)
         self.searchFunction = search.uniformCostSearch
         costFn = lambda pos: 2 ** pos[0]
         self.searchType = lambda state: PositionSearchProblem(state, costFn)
 
 
-def manhattanHeuristic(position, problem, info={}):
-    "The Manhattan distance heuristic for a PositionSearchProblem"
+def manhattanHeuristic(position, problem, info=None):
+    """
+    The Manhattan distance heuristic for a PositionSearchProblem
+    """
     xy1 = position
     xy2 = problem.goal
     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
 
-def euclideanHeuristic(position, problem, info={}):
-    "The Euclidean distance heuristic for a PositionSearchProblem"
+def euclideanHeuristic(position, problem, info=None):
+    """
+    The Euclidean distance heuristic for a PositionSearchProblem
+    """
     xy1 = position
     xy2 = problem.goal
     return ((xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2) ** 0.5
@@ -439,16 +450,29 @@ def cornersHeuristic(state, problem):
     admissible (as well as consistent).
     """
     corners = problem.corners  # These are the corner coordinates
-    walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
+    # walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0  # Default to trivial solution
+    heuristic_dist = 0
+    for index, corner in enumerate(corners):
+        # If we haven't been to this corner yet in the state corner list
+        if not state[1][index]:
+            # See how far away we are manhattan wise
+            manhattan_dist = util.manhattanDistance(state[0], corner)
+
+            # If we're further than expected, up our heuristic value
+            if manhattan_dist > heuristic_dist:
+                heuristic_dist = manhattan_dist
+
+    return heuristic_dist
 
 
 class AStarCornersAgent(SearchAgent):
-    "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
+    """
+    A SearchAgent for FoodSearchProblem using A* and your foodHeuristic
+    """
 
     def __init__(self):
+        SearchAgent.__init__(self)
         self.searchFunction = lambda prob: search.aStarSearch(prob, cornersHeuristic)
         self.searchType = CornersProblem
 
@@ -517,6 +541,7 @@ class AStarFoodSearchAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
 
     def __init__(self):
+        SearchAgent.__init__(self)
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
         self.searchType = FoodSearchProblem
 
@@ -549,13 +574,26 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
-    position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    pacman_position, food_grid = state
+
+    # What's our heuristic
+    heuristic_dist = 0
+
+    for index, food_pill_position in enumerate(food_grid.asList()):
+        # Get the distance from Pacman to the specific food pill
+        food_pill_dist = util.manhattanDistance(pacman_position, food_pill_position)
+
+        # If it has a greater value, update our heuristics
+        if food_pill_dist > heuristic_dist:
+            heuristic_dist = food_pill_dist
+
+    return heuristic_dist
 
 
 class ClosestDotSearchAgent(SearchAgent):
-    "Search for all food using a sequence of searches"
+    """
+    Search for all food using a sequence of searches
+    """
 
     def registerInitialState(self, state):
         self.actions = []
@@ -609,6 +647,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
     def __init__(self, gameState):
         "Stores information from the gameState.  You don't need to change this."
         # Store the food for later reference
+        PositionSearchProblem.__init__(self, gameState)
         self.food = gameState.getFood()
 
         # Store info for the PositionSearchProblem (no need to change this)
