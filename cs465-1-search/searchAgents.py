@@ -581,7 +581,10 @@ def foodHeuristic(state, problem):
 
     for index, food_pill_position in enumerate(food_grid.asList()):
         # Get the distance from Pacman to the specific food pill
-        food_pill_dist = util.manhattanDistance(pacman_position, food_pill_position)
+        # Saeid recommendation to use mazeDistance over manhattanDistance
+        food_pill_dist = mazeDistance(
+            pacman_position, food_pill_position, problem.startingGameState
+        )
 
         # If it has a greater value, update our heuristics
         if food_pill_dist > heuristic_dist:
