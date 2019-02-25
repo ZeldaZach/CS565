@@ -4,19 +4,18 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-
-
-from util import manhattanDistance
-from game import Directions
-import random, util
+import random
+import sys
+import util
 
 from game import Agent
+
 
 class ReflexAgent(Agent):
     """
@@ -28,8 +27,7 @@ class ReflexAgent(Agent):
       headers.
     """
 
-
-    def getAction(self, gameState):
+    def getAction(self, game_state):
         """
         You do not need to change this method, but you're welcome to.
 
@@ -39,19 +37,20 @@ class ReflexAgent(Agent):
         some Directions.X for some X in the set {North, South, West, East, Stop}
         """
         # Collect legal moves and successor states
-        legalMoves = gameState.getLegalActions()
+        legal_moves = game_state.getLegalActions()
 
         # Choose one of the best actions
-        scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
-        bestScore = max(scores)
-        bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
-        chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+        scores = [self.evaluationFunction(game_state, action) for action in legal_moves]
+        best_score = max(scores)
+        best_indices = [
+            index for index in range(len(scores)) if scores[index] == best_score
+        ]
+        chosen_index = random.choice(best_indices)  # Pick randomly among the best
 
         "Add more of your code here if you want to"
+        return legal_moves[chosen_index]
 
-        return legalMoves[chosenIndex]
-
-    def evaluationFunction(self, currentGameState, action):
+    def evaluationFunction(self, current_game_state, action):
         """
         Design a better evaluation function here.
 
@@ -67,14 +66,33 @@ class ReflexAgent(Agent):
         to create a masterful evaluation function.
         """
         # Useful information you can extract from a GameState (pacman.py)
-        successorGameState = currentGameState.generatePacmanSuccessor(action)
-        newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood()
-        newGhostStates = successorGameState.getGhostStates()
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+        successor_game_state = current_game_state.generatePacmanSuccessor(action)
+        new_pos = successor_game_state.getPacmanPosition()
+        new_food = successor_game_state.getFood()
+        # new_ghost_states = successor_game_state.getGhostStates()
+        # new_scared_times = [ghostState.scaredTimer for ghostState in new_ghost_states]
 
-        "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        # What is the closest ghost
+        min_ghost_score = sys.maxint
+        for ghost in successor_game_state.getGhostPositions():
+            dist = util.manhattanDistance(ghost, new_pos)
+            if dist < min_ghost_score:
+                min_ghost_score = dist
+
+        # TOO CLOSE FOR COMFORT -- who cares about food!
+        if min_ghost_score == 1:
+            return -1 * sys.maxint
+
+        # What is the closest food
+        min_food_score = sys.maxint
+        for remaining_food in new_food.asList():
+            dist = util.manhattanDistance(remaining_food, new_pos)
+            if dist < min_food_score:
+                min_food_score = float(dist)
+
+        # Send back the old score, with a large gain
+        return successor_game_state.getScore() + 1 / min_food_score
+
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -85,6 +103,7 @@ def scoreEvaluationFunction(currentGameState):
       (not reflex agents).
     """
     return currentGameState.getScore()
+
 
 class MultiAgentSearchAgent(Agent):
     """
@@ -101,10 +120,12 @@ class MultiAgentSearchAgent(Agent):
       is another abstract class.
     """
 
-    def __init__(self, evalFn = 'scoreEvaluationFunction', depth = '2'):
-        self.index = 0 # Pacman is always agent index 0
+    def __init__(self, evalFn="scoreEvaluationFunction", depth="2"):
+        Agent.__init__(self)
+        self.index = 0  # Pacman is always agent index 0
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
+
 
 class MinimaxAgent(MultiAgentSearchAgent):
     """
@@ -131,6 +152,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
+
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
       Your minimax agent with alpha-beta pruning (question 3)
@@ -142,6 +164,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -158,6 +181,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
+
 def betterEvaluationFunction(currentGameState):
     """
       Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
@@ -168,6 +192,6 @@ def betterEvaluationFunction(currentGameState):
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
 
+
 # Abbreviation
 better = betterEvaluationFunction
-
