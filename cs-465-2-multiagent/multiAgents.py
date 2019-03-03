@@ -445,15 +445,46 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         return {"cost": next_state_costs / len(legal_actions), "direction": best_action}
 
 
-def betterEvaluationFunction(currentGameState):
+def betterEvaluationFunction(game_state):
     """
       Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
       evaluation function (question 5).
-
-      DESCRIPTION: <write something here so we know what you did>
+      DESCRIPTION:
+      Higher value = worse option
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # What is the closest ghost
+    min_ghost_score = sys.maxint
+    for ghost in game_state.getGhostPositions():
+        dist = util.manhattanDistance(ghost, game_state.getPacmanPosition())
+        if dist < min_ghost_score:
+            min_ghost_score = dist
+
+    # TOO CLOSE FOR COMFORT -- who cares about food!
+    if min_ghost_score == 1:
+        return -1 * sys.maxint
+
+    # Higher score = better result
+    # Lower evaluation = better result
+    evaluation = -50 * game_state.getScore()
+
+    # Determine the closets food
+    min_food_dist = sys.maxint
+    for food in game_state.getFood().asList():
+        dist_food = util.manhattanDistance(game_state.getPacmanPosition(), food)
+        if dist_food < min_food_dist:
+            min_food_dist = dist_food
+
+    # Add the smallest distance to our grand total
+    if min_food_dist != sys.maxint:
+        evaluation += min_food_dist
+
+    # The more food we have left, the worse our result
+    evaluation += 200 * game_state.getNumFood()
+
+    # The more power up pills we have, the worse our result
+    evaluation += 100 * len(game_state.getCapsules())
+
+    return -1 * evaluation
 
 
 # Abbreviation
