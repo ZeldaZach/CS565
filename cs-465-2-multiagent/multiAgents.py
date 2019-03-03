@@ -345,18 +345,104 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
-      Your expectimax agent (question 4)
+    Your expectimax agent (question 4)
     """
 
-    def getAction(self, gameState):
+    def getAction(self, game_state):
         """
-          Returns the expectimax action using self.depth and self.evaluationFunction
+        Get the next best action to take
+        :param game_state: Current game state
+        :return: Best action to take, based on the state
+        """
+        # Start us with pacman in the current state
+        return self.max_value(game_state, 0, 0)["direction"]
 
-          All ghosts should be modeled as choosing uniformly at random from their
-          legal moves.
+    def max_value(self, game_state, state_depth, agent_number):
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        With Pacman, you'll want the best value possible from the tree.
+        This will calculate it and give you back the dictionary.
+        :param game_state: Current game state
+        :param state_depth: How far in the tree you are
+        :param agent_number: Which agent is this? (Better be Pacman = 0)
+        :return: Best action with cost, as dictionary
+        """
+
+        # If we're at an end point, return out
+        if game_state.isWin() or game_state.isLose() or state_depth == self.depth:
+            return {
+                "cost": self.evaluationFunction(game_state),
+                "direction": Directions.STOP,
+            }
+
+        # Holders to get the largest options while iterating
+        best_cost = -1 * sys.maxint
+        best_action = Directions.STOP
+
+        legal_actions = game_state.getLegalActions(agent_number)
+        for action in legal_actions:
+            # Determine the worst of the ghosts and see if greater than current pacman
+            next_state = game_state.generateSuccessor(agent_number, action)
+            next_result = self.min_value(next_state, state_depth, agent_number + 1)
+
+            if next_result["cost"] > best_cost:
+                best_cost = next_result["cost"]
+                best_action = action
+
+        # We didn't find a better match
+        if best_cost == -1 * sys.maxint:
+            best_cost = self.evaluationFunction(game_state)
+            best_action = Directions.STOP
+
+        return {"cost": best_cost, "direction": best_action}
+
+    def min_value(self, game_state, state_depth, agent_number):
+        """
+        With the ghosts, you'll want the worst value possible from the tree.
+        This will calculate it and give back a dictionary.
+        :param game_state: Current game state
+        :param state_depth: How far in the tree
+        :param agent_number: Which ghost (better not be 0)
+        :return: Worst action with cost, as dictionary
+        """
+        # If we're at an end point, return out
+        if game_state.isWin() or game_state.isLose() or state_depth >= self.depth:
+            return {
+                "cost": self.evaluationFunction(game_state),
+                "direction": Directions.STOP,
+            }
+
+        # Future states all have a cost, lets sum them up
+        next_state_costs = 0.0
+
+        # Holders to get the smallest options while iterating
+        best_cost = sys.maxint
+        best_action = Directions.STOP
+
+        legal_actions = game_state.getLegalActions(agent_number)
+        for action in legal_actions:
+            next_state = game_state.generateSuccessor(agent_number, action)
+
+            # Determine what our next action should be
+            # Do we depth or breadth
+            next_agent = (agent_number + 1) % game_state.getNumAgents()
+            plus_state = 1 if not next_agent else 0
+            max_pac_min_ghost = self.max_value if not next_agent else self.min_value
+
+            next_action = max_pac_min_ghost(
+                next_state, state_depth + plus_state, next_agent
+            )
+
+            next_state_costs += next_action["cost"]
+
+            if next_action["cost"] < best_cost:
+                best_cost = next_action["cost"]
+                best_action = action
+
+        #  No better matches found
+        if best_cost == sys.maxint:
+            best_action = Directions.STOP
+
+        return {"cost": next_state_costs / len(legal_actions), "direction": best_action}
 
 
 def betterEvaluationFunction(currentGameState):
