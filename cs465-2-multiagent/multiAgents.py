@@ -134,6 +134,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
     def getAction(self, game_state):
         """
+        Returns the minimax action from the current gameState using self.depth
+        and self.evaluationFunction.
         Get the next best action to take
         :param game_state: Current game state
         :return: Best action to take, based on the state
