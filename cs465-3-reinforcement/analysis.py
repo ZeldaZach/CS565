@@ -20,9 +20,9 @@
 # value iteration.
 
 def question2():
-    answerDiscount = 0.9
+    answer_discount = 0.9
     answerNoise = 0.2
-    return answerDiscount, answerNoise
+    return answer_discount, answerNoise
 
 def question3a():
     answerDiscount = None
@@ -66,8 +66,8 @@ def question6():
     # If not possible, return 'NOT POSSIBLE'
 
 if __name__ == '__main__':
-    print 'Answers to analysis questions:'
+    print('Answers to analysis questions:')
     import analysis
     for q in [q for q in dir(analysis) if q.startswith('question')]:
         response = getattr(analysis, q)()
-        print '  Question %s:\t%s' % (q, str(response))
+        print('  Question %s:\t%s' % (q, str(response)))
