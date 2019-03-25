@@ -175,11 +175,11 @@ class PacmanQAgent(QLearningAgent):
 
 class ApproximateQAgent(PacmanQAgent):
     """
-       ApproximateQLearningAgent
+   ApproximateQLearningAgent
 
-       You should only have to overwrite getQValue
-       and update.  All other QLearningAgent functions
-       should work as is.
+   You should only have to overwrite getQValue
+   and update.  All other QLearningAgent functions
+   should work as is.
     """
 
     def __init__(self, extractor="IdentityExtractor", **args):
@@ -192,15 +192,15 @@ class ApproximateQAgent(PacmanQAgent):
 
     def getQValue(self, state, action):
         """
-          Should return Q(state,action) = w * featureVector
-          where * is the dotProduct operator
+        Should return Q(state,action) = w * featureVector
+        where * is the dotProduct operator
         """
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
     def update(self, state, action, next_state, reward):
         """
-           Should update your weights based on transition
+        Should update your weights based on transition
         """
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
