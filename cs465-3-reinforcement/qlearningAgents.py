@@ -12,9 +12,8 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 import random
 import sys
-
-import util
 from learningAgents import ReinforcementAgent
+from featureExtractors import *
 
 
 class QLearningAgent(ReinforcementAgent):
@@ -175,11 +174,11 @@ class PacmanQAgent(QLearningAgent):
 
 class ApproximateQAgent(PacmanQAgent):
     """
-   ApproximateQLearningAgent
+    ApproximateQLearningAgent
 
-   You should only have to overwrite getQValue
-   and update.  All other QLearningAgent functions
-   should work as is.
+    You should only have to overwrite getQValue
+    and update.  All other QLearningAgent functions
+    should work as is.
     """
 
     def __init__(self, extractor="IdentityExtractor", **args):
@@ -195,15 +194,22 @@ class ApproximateQAgent(PacmanQAgent):
         Should return Q(state,action) = w * featureVector
         where * is the dotProduct operator
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.getWeights() * self.featExtractor.getFeatures(state, action)
 
     def update(self, state, action, next_state, reward):
         """
         Should update your weights based on transition
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        feature_vector = self.featExtractor.getFeatures(state, action)
+        max_q_value_next_state = self.computeValueFromQValues(next_state)
+        best_q_value = self.getQValue(state, action)
+
+        # diff = (rew + dis * max(Q(s', a')) - Q(s,a)
+        difference = reward + self.discount * max_q_value_next_state - best_q_value
+
+        # wi = wi + alpha * diff * fi(s,a)
+        for feature in feature_vector:
+            self.weights[feature] += self.alpha * difference * feature_vector[feature]
 
     def final(self, state):
         """Called at the end of each game."""
@@ -213,5 +219,4 @@ class ApproximateQAgent(PacmanQAgent):
         # did we finish training?
         if self.episodesSoFar == self.numTraining:
             # you might want to print your weights here for debugging
-            "*** YOUR CODE HERE ***"
             pass
