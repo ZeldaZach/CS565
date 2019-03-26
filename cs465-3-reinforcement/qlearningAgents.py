@@ -38,7 +38,9 @@ class QLearningAgent(ReinforcementAgent):
     """
 
     def __init__(self, **args):
-        """You can initialize Q-values here..."""
+        """
+        You can initialize Q-values here...
+        """
         ReinforcementAgent.__init__(self, **args)
 
         # Dict of tuples w/ state, action and the value provided
@@ -54,10 +56,10 @@ class QLearningAgent(ReinforcementAgent):
 
     def computeValueFromQValues(self, state):
         """
-          Returns max_action Q(state,action)
-          where the max is over legal actions.  Note that if
-          there are no legal actions, which is the case at the
-          terminal state, you should return a value of 0.0.
+        Returns max_action Q(state,action)
+        where the max is over legal actions.  Note that if
+        there are no legal actions, which is the case at the
+        terminal state, you should return a value of 0.0.
         """
         legal_actions = self.getLegalActions(state)
 
@@ -74,9 +76,9 @@ class QLearningAgent(ReinforcementAgent):
 
     def computeActionFromQValues(self, state):
         """
-          Compute the best action to take in a state.  Note that if there
-          are no legal actions, which is the case at the terminal state,
-          you should return None.
+        Compute the best action to take in a state.  Note that if there
+        are no legal actions, which is the case at the terminal state,
+        you should return None.
         """
         best_value = -1 * sys.maxsize
         best_actions = []
@@ -134,9 +136,15 @@ class QLearningAgent(ReinforcementAgent):
         self.q_values[(state, action)] = new_value
 
     def getPolicy(self, state):
+        """
+        Get the policy from Q values
+        """
         return self.computeActionFromQValues(state)
 
     def getValue(self, state):
+        """
+        Get the value from Q values
+        """
         return self.computeValueFromQValues(state)
 
 
@@ -189,6 +197,9 @@ class ApproximateQAgent(PacmanQAgent):
         self.weights = util.Counter()
 
     def getWeights(self):
+        """
+        Get weights of agent
+        """
         return self.weights
 
     def getQValue(self, state, action):
@@ -214,7 +225,9 @@ class ApproximateQAgent(PacmanQAgent):
             self.weights[feature] += self.alpha * difference * feature_vector[feature]
 
     def final(self, state):
-        """Called at the end of each game."""
+        """
+        Called at the end of each game.
+        """
         # call the super-class final method
         PacmanQAgent.final(self, state)
 
