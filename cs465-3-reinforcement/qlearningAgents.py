@@ -141,14 +141,15 @@ class QLearningAgent(ReinforcementAgent):
 
 
 class PacmanQAgent(QLearningAgent):
-    """Exactly the same as QLearningAgent, but with different default parameters"""
+    """
+    Exactly the same as QLearningAgent, but with different default parameters
+    """
 
-    def __init__(self, epsilon=0.05, gamma=0.8, alpha=0.2, num_training=0, **args):
+    def __init__(self, epsilon=0.05, gamma=0.8, alpha=0.2, numTraining=0, **args):
         """
         These default parameters can be changed from the pacman.py command line.
         For example, to change the exploration rate, try:
             python pacman.py -p PacmanQLearningAgent -a epsilon=0.1
-
         alpha    - learning rate
         epsilon  - exploration rate
         gamma    - discount factor
@@ -157,7 +158,7 @@ class PacmanQAgent(QLearningAgent):
         args["epsilon"] = epsilon
         args["gamma"] = gamma
         args["alpha"] = alpha
-        args["numTraining"] = num_training
+        args["numTraining"] = numTraining
         self.index = 0  # This is always Pacman
         QLearningAgent.__init__(self, **args)
 
@@ -169,6 +170,7 @@ class PacmanQAgent(QLearningAgent):
         """
         action = QLearningAgent.getAction(self, state)
         self.doAction(state, action)
+
         return action
 
 
