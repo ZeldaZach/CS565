@@ -14,7 +14,6 @@
 
 import itertools
 import util
-import random
 import busters
 import game
 
@@ -160,7 +159,7 @@ class ExactInference(InferenceModule):
         all_possible = util.Counter()
         if noisy_distance is None:
             # Reset the beliefs
-            for i in self.beliefs.keys():
+            for i in self.beliefs:
                 all_possible[i] = 0
 
             # Ghost found, mark it as certain
