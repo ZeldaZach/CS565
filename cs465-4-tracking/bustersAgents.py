@@ -10,7 +10,8 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-
+import operator
+import sys
 
 import util
 from game import Agent
@@ -88,14 +89,14 @@ class BustersAgent:
         self,
         index=0,
         inference="ExactInference",
-        ghost_agents=None,
-        observe_enable=True,
-        elapse_time_enable=True,
+        ghostAgents=None,
+        observeEnable=True,
+        elapseTimeEnable=True,
     ):
         inference_type = util.lookup(inference, globals())
-        self.inferenceModules = [inference_type(a) for a in ghost_agents]
-        self.observeEnable = observe_enable
-        self.elapseTimeEnable = elapse_time_enable
+        self.inferenceModules = [inference_type(a) for a in ghostAgents]
+        self.observeEnable = observeEnable
+        self.elapseTimeEnable = elapseTimeEnable
         self.display = None
         self.firstMove = None
 
@@ -139,9 +140,9 @@ class BustersAgent:
 class BustersKeyboardAgent(BustersAgent, KeyboardAgent):
     """An agent controlled by the keyboard that displays beliefs about ghost positions."""
 
-    def __init__(self, index=0, inference="KeyboardInference", ghost_agents=None):
+    def __init__(self, index=0, inference="KeyboardInference", ghostAgents=None):
         KeyboardAgent.__init__(self, index)
-        BustersAgent.__init__(self, index, inference, ghost_agents)
+        BustersAgent.__init__(self, index, inference, ghostAgents)
 
     def getAction(self, game_state):
         return BustersAgent.getAction(self, game_state)
@@ -157,9 +158,6 @@ from game import Directions
 
 class GreedyBustersAgent(BustersAgent):
     """An agent that charges the closest ghost."""
-
-    def __init__(self):
-        self.distancer = None
 
     def registerInitialState(self, game_state):
         """Pre-computes the distance between every two points."""
@@ -194,13 +192,32 @@ class GreedyBustersAgent(BustersAgent):
              indices into this list should be 1 less than indices into the
              game_state.getLivingGhosts() list.
         """
+        # Given vars
         pacman_position = game_state.getPacmanPosition()
-        legal = [a for a in game_state.getLegalPacmanActions()]
         living_ghosts = game_state.getLivingGhosts()
         living_ghost_position_distributions = [
             beliefs
             for i, beliefs in enumerate(self.ghostBeliefs)
             if living_ghosts[i + 1]
         ]
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        # My defaults
+        next_action_to_take = Directions.STOP
+        minimum_distance = sys.maxint
+
+        for legal_action in game_state.getLegalPacmanActions():
+            next_position = Actions.getSuccessor(pacman_position, legal_action)
+
+            for ghost_distribution in living_ghost_position_distributions:
+                # Take the best option and see if it's better than
+                # what we already have
+                ghost_position = max(
+                    ghost_distribution.items(), key=operator.itemgetter(1)
+                )[0]
+
+                new_distance = self.distancer.getDistance(next_position, ghost_position)
+                if new_distance < minimum_distance:
+                    minimum_distance = new_distance
+                    next_action_to_take = legal_action
+
+        return next_action_to_take
